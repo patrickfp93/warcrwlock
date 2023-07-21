@@ -17,7 +17,7 @@ impl Base{
         self.value = 0;
     }
     fn refself_some_none(&self,value : usize){
-        println!("{}",self.value);
+        println!("{}",value);
     }
     fn refmutself_some_none(&mut self){
         self.value = 0;

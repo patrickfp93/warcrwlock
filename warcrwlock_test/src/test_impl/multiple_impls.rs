@@ -1,15 +1,14 @@
-use std::sync::RwLockReadGuard;
 
 #[test]
 pub fn test_macro_struture_and_impl() {
     mod my_module {
-        use warcrwlock::warc_rwlock;
+        use warcrwlock::warcrwlock;
 
-        #[warc_rwlock]
+        #[warcrwlock]
         pub struct MyStruct {
             value: usize,
         }
-        #[warc_rwlock]
+        #[warcrwlock]
         impl MyStruct {
             pub fn reset(&mut self) {
                 self.value = 0;
@@ -48,8 +47,8 @@ pub fn test_macro_struture_and_impl() {
 
 #[test]
 pub fn test_macro_in_mod() {
-    use warcrwlock::warc_rwlock;
-    #[warc_rwlock]
+    use warcrwlock::warcrwlock;
+    #[warcrwlock]
     mod my_module {
         pub const name : &str= "my_module";
 

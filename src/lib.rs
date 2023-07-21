@@ -12,7 +12,8 @@ mod util;
 
 #[doc = include_str!("./example.rs")]
 #[proc_macro_attribute]
-pub fn warc_rwlock(_ : TokenStream, input : TokenStream) -> proc_macro::TokenStream{
+pub fn warcrwlock(_ : TokenStream, input : TokenStream) -> proc_macro::TokenStream{
+    println!(">>>>>>>> 1");
     //obtem do o módulo
     let item: Item = parse_macro_input!(input as Item);
     match item {
@@ -26,6 +27,8 @@ pub fn warc_rwlock(_ : TokenStream, input : TokenStream) -> proc_macro::TokenStr
 fn extend_mod(item_mod : ItemMod) -> TokenStream{
     let mut tokens = format!("{} mod {}",item_mod.vis.into_token_stream().to_string(),item_mod.ident.to_string());
     tokens += "{";
+    
+    println!(">>>>>>>> 1");
     for item in item_mod.content.unwrap().1.iter(){
         if !has_warcrwlock_attribute(&item){
             match item.clone() {
@@ -36,9 +39,11 @@ fn extend_mod(item_mod : ItemMod) -> TokenStream{
             }
         }
     }
+    
+    println!(">>>>>>>> 1");
     tokens += "}";
     let output : proc_macro2::TokenStream = parse_str(&tokens).unwrap();
-    //println!(">>Mod>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n {} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",output);
+    println!(">>Mod>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n {} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",output);
     output.into()
 }
 
