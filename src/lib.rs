@@ -10,6 +10,7 @@ use crate::util::impl_block_helpers::{
 };
 mod util;
 
+#[doc = include_str!("./example.rs")]
 #[proc_macro_attribute]
 pub fn warc_rwlock(_ : TokenStream, input : TokenStream) -> proc_macro::TokenStream{
     //obtem do o módulo
@@ -125,6 +126,8 @@ fn extend_struct(item_struct : ItemStruct) -> TokenStream{
     //println!(">>Struct>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n {} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",output);
     output.into()
 }
+
+
 
 fn extend_impl(item_impl : ItemImpl) -> TokenStream{
     let original_name = item_impl.self_ty.clone();
