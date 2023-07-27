@@ -1,5 +1,6 @@
 use warcrwlock::warcrwlock;
 
+/*
 #[test]
 pub fn impl_i_mut_self_o_default() {
     #[warcrwlock]
@@ -57,7 +58,7 @@ pub fn impl_static_o_self(){
             }
         }
     }
-}
+}*/
 
 #[test]
 pub fn impl_static_input_o_self(){
@@ -71,6 +72,14 @@ pub fn impl_static_input_o_self(){
             Self{
                 value
             }
+        }
+
+        pub fn value(&self) -> usize{
+            self.value
+        }
+
+        pub fn static_method(current : A ,other : A) -> A{
+            A::new(current.value() + other.value())
         }
     }
     

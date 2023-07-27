@@ -1,5 +1,5 @@
 use syn::{
-    parse_quote, punctuated::Punctuated, token::Comma, FnArg, ImplItem, ImplItemFn, ItemImpl,
+    parse_quote, punctuated::Punctuated, token::Comma, FnArg, ImplItem, ImplItemFn,
     Pat, ReturnType, Signature, Stmt, Type, Visibility, Receiver,
 };
 
@@ -169,20 +169,6 @@ pub fn transform_method_return_type(item_impl: &mut ImplItem,original_struct_nam
             }
         }
     }
-}
-
-pub fn get_impl_type_name(item_impl: &ItemImpl) -> Option<String> {
-    if let Some((_, path, _)) = &item_impl.trait_ {
-        if let Some(segment) = path.segments.last() {
-            return Some(segment.ident.to_string());
-        }
-    } else if let Type::Path(type_path) = &*item_impl.self_ty {
-        if let Some(segment) = type_path.path.segments.last() {
-            return Some(segment.ident.to_string());
-        }
-    }
-    
-    None
 }
 
 
