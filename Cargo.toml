@@ -1,6 +1,6 @@
 [package]
 name = "warcrwlock"
-version = "1.2.0"
+version = "1.2.1"
 edition = "2021"
 authors = ["PFP <patrickfp93@gmail.com>"]
 description = "A crate in Rust that provides an attribute macro for mods, structs and impls. Rewrite code using under the hood asynchronous reference (Arc) and asynchronous writing and read(RWlock) control elements."
