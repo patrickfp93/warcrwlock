@@ -13,7 +13,7 @@ To use the WarcRwLock crate, add the following dependency to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-warcrwlock = "1.1.0"
+warcrwlock = "1.2.0"
 ```
 
 ## Example Usage
@@ -46,9 +46,18 @@ impl MyStruct {
         self.value
     }
     
+    //wrapper Method
     pub fn plus(a : MyStruct, b : MyStruct) -> MyStruct{
-        *a.write().unwrap().value_mut() = b.get_value();
+        *a.write().unwrap().value_mut() += b.get_value();
         a
+    }
+    #[wrapper_method]
+    pub fn get_wrapper_value(&self)-> usize{
+        self.get_value()
+    }
+
+    pub fn child(&self) -> MyStruct{
+        MyStruct::new(self.value + 10)
     }
     
 }
@@ -72,13 +81,18 @@ impl MyStructBase {
         self.value = 0;
     }
 
-    pub fn value_mut(&mut self) -> &mut usize {
+    pub fn value_mut(&mut self) -> &mut usize {****
         &mut self.value
     }
 
     fn get_value(&self) -> usize {
         self.value
     }
+    
+    pub fn child(&self) -> MyStructBase{
+        MyStructBase::new(self.value + 10)
+    }
+
 }
 
 pub struct MyStruct {
@@ -104,6 +118,16 @@ impl MyStruct {
         *a.write().unwrap().value_mut() = b.get_value();
         a
     }
+
+    pub fn get_wrapper_value(&self)-> usize{
+        self.get_value()
+    }
+
+    pub fn child(&self) -> MyStruct{
+        MyStruct {
+            base: Arc::new(RwLock::new(self.child())),
+        }
+    }    
 
 }
 
@@ -132,6 +156,9 @@ unsafe impl Sync for MyStruct {}
 After using the `#[warcrwlock]` attribute, the `MyStruct` will be automatically rewritten with the addition of a `base` field containing an `Arc<RwLock<MyStructBase>>`. The functions of `MyStruct` will then be implemented to safely access the `base` field.
 
 >`Update(1.1.0)`: Methods with parameters of the same type as the presented structure can now be freely implemented.
+>`Update(1.2.0)`: Added Wrapper Methods and allowed all types of methods with Self return.
+### Wrapper Methods
+This type of method happens for two reasons: when the method has parameters of type ``Self`` or when the ``wrapper_attribute`` attribute is added.
 
 ### Method read and write
 Similar to the methods in `RwLock<T>`, these functions are used to lock the usage and gain access to read or write functions, as shown in the example below:

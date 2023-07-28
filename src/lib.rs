@@ -10,6 +10,7 @@ use syn::{
 mod helpers;
 
 #[doc = include_str!("./example.rs")]
+
 #[proc_macro_attribute]
 pub fn warcrwlock(_: TokenStream, input: TokenStream) -> proc_macro::TokenStream {
     //obtem do o módulo
