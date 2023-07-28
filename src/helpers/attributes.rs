@@ -1,3 +1,4 @@
+use quote::ToTokens;
 use syn::{Attribute, Item, Type};
 
 use super::ATTRIBUTE_NAME;
@@ -31,11 +32,6 @@ fn get_name_attribute(attribute: &Attribute) -> Option<String> {
     None
 }
 
-pub fn get_type_name(type_ : Box<Type>) -> Option<String>{
-    if let Type::Path(path) = type_.as_ref(){
-        if let Some(ident) = path.path.get_ident(){
-            return Some(ident.to_string())
-        }
-    }
-    None
+pub fn get_type_name(type_ : Box<Type>) -> String{
+    type_.into_token_stream().to_string()
 }

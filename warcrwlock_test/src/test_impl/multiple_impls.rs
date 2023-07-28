@@ -31,6 +31,11 @@ pub fn test_macro_struture_and_impl() {
             pub fn value_ref(&self) -> &usize {
                 &self.value
             }
+
+            pub fn values(&self) -> Vec<usize>{
+                vec![self.value]
+            }
+
         }
     }
     use my_module::MyStruct;

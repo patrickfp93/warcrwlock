@@ -44,7 +44,7 @@ fn is_pre_wrapper(impl_item: &ImplItem, original_struct_name: &str) -> bool {
 
 fn is_builder(method: &ImplItemFn, original_struct_name: &str) -> bool {
     if let ReturnType::Type(_, type_) = method.sig.output.clone() {
-        let type_name = get_type_name(type_).expect(&format!("Could not get Return Type name from method called \"{}\".",method.sig.to_token_stream().to_string()));
+        let type_name = get_type_name(type_);
         return type_name == "Self" || type_name == original_struct_name;
     }
     false
@@ -67,8 +67,7 @@ fn normalize_self_types(method: &mut ImplItemFn, original_struct_name: &str) {
         ));
     }
     if let ReturnType::Type(_, type_) = method.sig.output.clone() {
-        if get_type_name(type_).expect("Something wrong with the function return!")
-            == original_struct_name
+        if get_type_name(type_) == original_struct_name
         {
             method.sig.output = parse_str(" -> Self").unwrap();
         }
@@ -193,8 +192,7 @@ fn rebuild_implementations(
 
 pub fn extend_impl(item_impl: ItemImpl) -> TokenStream {
     let wrapper_self_ty = item_impl.self_ty.clone();
-    let wrapper_self_ty_str = get_type_name(wrapper_self_ty.clone())
-        .expect("Could not get type name from implamantation.");
+    let wrapper_self_ty_str = get_type_name(wrapper_self_ty.clone());
     let base_self_ty_str = wrapper_self_ty_str.clone() + "Base";
     let base_self_ty: Box<Type> = parse_str(&base_self_ty_str).unwrap();
 
