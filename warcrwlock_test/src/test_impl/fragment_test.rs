@@ -1,6 +1,6 @@
 use warcrwlock::warcrwlock;
 
-/*
+
 #[test]
 pub fn impl_i_mut_self_o_default() {
     #[warcrwlock]
@@ -58,7 +58,7 @@ pub fn impl_static_o_self(){
             }
         }
     }
-}*/
+}
 
 #[test]
 pub fn impl_static_input_o_self(){
@@ -81,6 +81,11 @@ pub fn impl_static_input_o_self(){
         pub fn static_method(current : A ,other : A) -> A{
             A::new(current.value() + other.value())
         }
+
+        pub fn static_method_with_return() -> A{
+            return A::new(0);
+        }
+
     }
     
 }

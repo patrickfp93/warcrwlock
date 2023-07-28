@@ -23,7 +23,7 @@ pub fn change_block_method(original_impl_item: &ImplItem,name_base_type : String
     None
 }
 
-fn remake_block(method: &mut ImplItemFn, name_base_type : String ) -> bool {
+pub fn remake_block(method: &mut ImplItemFn, name_base_type : String ) -> bool {
     let sig = method.sig.clone();
     let reference = if let Some(receiver )  = find_self(&sig) {
         if receiver.mutability.is_some(){"self.base.write().unwrap().".to_string()}

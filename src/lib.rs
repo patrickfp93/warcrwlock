@@ -1,14 +1,10 @@
-use helpers::{
-    attributes::{get_type_name, has_warcrwlock_attribute},
-    fields::extract_fields,
-    methods::{change_block_method, remove_pub_from_impl_item, transform_method_return_type},
-};
+use helpers::{fields::extract_fields, attributes::has_warcrwlock_attribute};
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::{quote, ToTokens};
 use syn::{
-    parse_macro_input, parse_quote, parse_str, DeriveInput, Field, FnArg, ImplItem, Item, ItemImpl,
-    ItemMod, ItemStruct, Type, Visibility,
+    parse_macro_input, parse_quote, parse_str, DeriveInput, Field,
+    Item, ItemImpl, ItemMod, ItemStruct, Visibility,
 };
 
 mod helpers;
@@ -19,11 +15,16 @@ pub fn warcrwlock(_: TokenStream, input: TokenStream) -> proc_macro::TokenStream
     //obtem do o módulo
     let item: Item = parse_macro_input!(input as Item);
     match item {
-        Item::Impl(item_impl) => extend_impl(item_impl).into(),
+        Item::Impl(item_impl) => helpers::implementation::extend_impl(item_impl).into(),
         Item::Mod(sub_mod) => extend_mod(sub_mod).into(),
         Item::Struct(item_struct) => extend_struct(item_struct).into(),
         _ => panic!("This macro can only be used in structs, impl Blocks and mods!"),
     }
+}
+
+#[proc_macro_attribute]
+pub fn wrapper_method(_: TokenStream, input: TokenStream) -> proc_macro::TokenStream {
+    input.into()
 }
 
 fn extend_mod(item_mod: ItemMod) -> TokenStream {
@@ -36,7 +37,7 @@ fn extend_mod(item_mod: ItemMod) -> TokenStream {
     for item in item_mod.content.unwrap().1.iter() {
         if !has_warcrwlock_attribute(&item) {
             match item.clone() {
-                Item::Impl(item_impl) => tokens += &extend_impl(item_impl.clone()).to_string(),
+                Item::Impl(item_impl) => tokens += &helpers::implementation::extend_impl(item_impl.clone()).to_string(),
                 Item::Mod(sub_mod) => tokens += &extend_mod(sub_mod.clone()).to_string(),
                 Item::Struct(item_struct) => {
                     tokens += &extend_struct(item_struct.clone()).to_string()
@@ -131,7 +132,7 @@ fn extend_struct(item_struct: ItemStruct) -> TokenStream {
     };
     output.into()
 }
-
+/*
 fn is_self_type_arg(arg: &FnArg, original_struct_name: &str) -> bool {
     let mut possible_name_type = None;
     match arg {
@@ -145,7 +146,7 @@ fn is_self_type_arg(arg: &FnArg, original_struct_name: &str) -> bool {
         _ => {}
     };
     if let Some(name_type) = possible_name_type {
-        if &name_type == original_struct_name {
+        if &name_type == original_struct_name || &name_type == "Self" {
             return true;
         }
     }
@@ -229,3 +230,4 @@ fn extend_impl(item_impl: ItemImpl) -> TokenStream {
     };
     output.into()
 }
+*/

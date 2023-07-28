@@ -1,2 +1,2 @@
 mod fragment_test;
-//mod multiple_impls;
+mod multiple_impls;
