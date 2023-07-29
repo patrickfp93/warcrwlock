@@ -28,6 +28,11 @@ pub fn wrapper_method(_: TokenStream, input: TokenStream) -> proc_macro::TokenSt
     input.into()
 }
 
+#[proc_macro_attribute]
+pub fn visible_to_wrapper(_: TokenStream, input: TokenStream) -> proc_macro::TokenStream {
+    input.into()
+}
+
 fn extend_mod(item_mod: ItemMod) -> TokenStream {
     let mut tokens = format!(
         "{} mod {}",

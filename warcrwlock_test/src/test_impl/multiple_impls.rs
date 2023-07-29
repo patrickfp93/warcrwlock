@@ -2,7 +2,7 @@
 #[test]
 pub fn test_macro_struture_and_impl() {
     mod my_module {
-        use warcrwlock::warcrwlock;
+        use warcrwlock::{warcrwlock, wrapper_method};
 
         #[warcrwlock]
         pub struct MyStruct {
@@ -35,6 +35,16 @@ pub fn test_macro_struture_and_impl() {
             pub fn values(&self) -> Vec<usize>{
                 vec![self.value]
             }
+
+            #[warcrwlock::visible_to_wrapper]
+            fn private_method(&self) -> usize{
+                10
+            }
+
+            #[wrapper_method]
+            pub fn wraper_method(&self) -> usize{
+                self.private_method()
+            } 
 
         }
     }

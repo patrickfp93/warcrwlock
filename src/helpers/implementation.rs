@@ -1,11 +1,11 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{
-    parse_str, punctuated::Punctuated, token::Comma, FnArg, ImplItem, ImplItemFn,
-    ItemImpl, Pat, Receiver, ReturnType, Signature, Type, Visibility,
+    parse_str, punctuated::Punctuated, token::Comma, FnArg, ImplItem, ImplItemFn, ItemImpl, Pat,
+    Receiver, ReturnType, Signature, Type, Visibility,
 };
 
-use super::{attributes::get_type_name, ATTRIBUTE_WRAPPER_NAME};
+use super::{attributes::get_type_name, ATTRIBUTE_WRAPPER_NAME, VISIBLE_METHOD};
 
 fn is_self_type_arg(arg: &FnArg, original_struct_name: &str) -> bool {
     let mut possible_name_type = None;
@@ -34,10 +34,11 @@ fn is_pre_wrapper(impl_item: &ImplItem, original_struct_name: &str) -> bool {
             .inputs
             .iter()
             .any(|arg| is_self_type_arg(arg, original_struct_name))
-            || method
-                .attrs
-                .iter()
-                .any(|atts| atts.to_token_stream().to_string().contains(ATTRIBUTE_WRAPPER_NAME));
+            || method.attrs.iter().any(|atts| {
+                atts.to_token_stream()
+                    .to_string()
+                    .contains(ATTRIBUTE_WRAPPER_NAME)
+            });
     }
     false
 }
@@ -67,8 +68,7 @@ fn normalize_self_types(method: &mut ImplItemFn, original_struct_name: &str) {
         ));
     }
     if let ReturnType::Type(_, type_) = method.sig.output.clone() {
-        if get_type_name(type_) == original_struct_name
-        {
+        if get_type_name(type_) == original_struct_name {
             method.sig.output = parse_str(" -> Self").unwrap();
         }
     }
@@ -128,6 +128,22 @@ fn has_reference_output(method: &ImplItemFn) -> bool {
     false
 }
 
+fn check_if_ideal_method(method: &ImplItemFn) -> bool{
+    let mut reply = false;
+    if let Visibility::Public(_) = method.vis {
+        reply = true;
+    } else if let Visibility::Restricted(_) = method.vis{
+        reply = true;
+    } else if method
+        .attrs
+        .iter()
+        .any(|atts| atts.to_token_stream().to_string().contains(VISIBLE_METHOD))
+    {
+        reply = true;
+    }
+    reply
+}
+
 fn rebuild_implementations(
     base_impl_items: &mut Vec<ImplItem>,
     wrapper_impl_items: &mut Vec<ImplItem>,
@@ -138,12 +154,12 @@ fn rebuild_implementations(
     for impl_item in &item_impl.items {
         //is method?
         if let ImplItem::Fn(method) = impl_item {
-            //is public
-            if let Visibility::Public(_) = method.vis {
+            //is not private or visible to wrapper
+            if check_if_ideal_method(method) {
                 //does it have Self args?
                 if is_pre_wrapper(impl_item, &wrapper_self_ty_str) {
                     wrapper_impl_items.push(impl_item.clone());
-                }else if has_reference_output(method) {
+                } else if has_reference_output(method) {
                     base_impl_items.push(ImplItem::Fn(method.clone()));
                 } else if is_builder(method, &wrapper_self_ty_str) {
                     let mut base_method = method.clone();
@@ -152,7 +168,7 @@ fn rebuild_implementations(
                     let mut wrapper_method = method.clone();
                     build_wrapper_method_block(&mut wrapper_method, &wrapper_self_ty_str);
                     wrapper_impl_items.push(ImplItem::Fn(wrapper_method));
-                }  else {
+                } else {
                     let reference = if let Some(receiver) = find_self(&method.sig) {
                         if receiver.mutability.is_some() {
                             "self.base.write().unwrap().".to_string()
@@ -183,6 +199,8 @@ fn rebuild_implementations(
                         .push(parse_str(&stmt_str).unwrap());
                     wrapper_impl_items.push(ImplItem::Fn(wrapper_method));
                 }
+            } else {
+                base_impl_items.push(impl_item.clone());
             }
         } else {
             base_impl_items.push(impl_item.clone());
