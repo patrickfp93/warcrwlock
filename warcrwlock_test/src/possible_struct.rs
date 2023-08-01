@@ -119,5 +119,13 @@ impl Clone for A{
     }
 }
 
+impl PartialEq for A{
+    fn eq(&self, other: &Self) -> bool {
+        let ptr_usize_a = (self.base.as_ref() as *const RwLock<Base>) as usize;        
+        let ptr_usize_b = (other.base.as_ref() as *const RwLock<Base>) as usize;
+        ptr_usize_a == ptr_usize_b
+    }
+}
+
 unsafe impl Send for A{}
 unsafe impl Sync for A{}

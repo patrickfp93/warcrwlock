@@ -5,7 +5,8 @@ use syn::{
     Receiver, ReturnType, Signature, Type, Visibility,
 };
 
-use super::{attributes::get_type_name, ATTRIBUTE_WRAPPER_NAME, VISIBLE_METHOD};
+use super::{ATTRIBUTE_WRAPPER_NAME, module::get_type_name, VISIBLE_METHOD};
+
 
 fn is_self_type_arg(arg: &FnArg, original_struct_name: &str) -> bool {
     let mut possible_name_type = None;
@@ -221,7 +222,7 @@ pub fn extend_impl(item_impl: ItemImpl) -> TokenStream {
         &mut wrapper_impl_items,
         item_impl.clone(),
         wrapper_self_ty_str,
-        base_self_ty_str,
+        base_self_ty_str.to_string(),
     );
     let mut base_impl = item_impl.clone();
     base_impl.self_ty = base_self_ty;

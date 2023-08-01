@@ -4,7 +4,14 @@ pub fn test_macro_struture_and_impl() {
     mod my_module {
         use warcrwlock::{warcrwlock, wrapper_method};
 
+        trait test_trait {
+            fn zero()-> usize{
+                0
+            }
+        }
+
         #[warcrwlock]
+        #[derive(test_trait)]
         pub struct MyStruct {
             value: usize,
         }
@@ -57,6 +64,7 @@ pub fn test_macro_struture_and_impl() {
     assert_eq!(a.get_value(), 11);
     a.reset();
     assert_eq!(b.get_value(), 0);
+    assert!(a == b);
 
 }
 
