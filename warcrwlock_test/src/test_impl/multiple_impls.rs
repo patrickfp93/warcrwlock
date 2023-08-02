@@ -1,17 +1,18 @@
 
 #[test]
 pub fn test_macro_struture_and_impl() {
-    mod my_module {
+    trait TestTrait {
+        fn zero() -> usize {
+            0
+        }
+    }
+
+    pub mod my_module {
+
         use warcrwlock::{warcrwlock, wrapper_method};
 
-        trait test_trait {
-            fn zero()-> usize{
-                0
-            }
-        }
-
         #[warcrwlock]
-        #[derive(test_trait)]
+        #[derive(Debug)]
         pub struct MyStruct {
             value: usize,
         }
@@ -39,20 +40,19 @@ pub fn test_macro_struture_and_impl() {
                 &self.value
             }
 
-            pub fn values(&self) -> Vec<usize>{
+            pub fn values(&self) -> Vec<usize> {
                 vec![self.value]
             }
 
             #[warcrwlock::visible_to_wrapper]
-            fn private_method(&self) -> usize{
+            fn private_method(&self) -> usize {
                 10
             }
 
             #[wrapper_method]
-            pub fn wraper_method(&self) -> usize{
+            pub fn wraper_method(&self) -> usize {
                 self.private_method()
-            } 
-
+            }
         }
     }
     use my_module::MyStruct;
@@ -60,12 +60,12 @@ pub fn test_macro_struture_and_impl() {
     *a.write().unwrap().value_mut() = 10;
     assert_eq!(*a.read().unwrap().value_ref(), 10);
     let mut b = a.clone();
-    b.set_value(11);    
+    b.set_value(11);
     assert_eq!(a.get_value(), 11);
     a.reset();
     assert_eq!(b.get_value(), 0);
     assert!(a == b);
-
+    println!("Debug: {:?}", a)
 }
 
 #[test]
@@ -73,7 +73,7 @@ pub fn test_macro_in_mod() {
     use warcrwlock::warcrwlock;
     #[warcrwlock]
     mod my_module {
-        pub const name : &str= "my_module";
+        pub const name: &str = "my_module";
 
         pub struct MyStruct {
             value: usize,
@@ -106,7 +106,7 @@ pub fn test_macro_in_mod() {
     *a.write().unwrap().value_mut() = 10;
     assert_eq!(*a.read().unwrap().value_ref(), 10);
     let mut b = a.clone();
-    b.set_value(11);    
+    b.set_value(11);
     assert_eq!(a.get_value(), 11);
     a.reset();
     assert_eq!(b.get_value(), 0);

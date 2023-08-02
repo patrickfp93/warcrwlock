@@ -1,4 +1,4 @@
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard, LockResult};
+use std::{sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard, LockResult}, fmt::Debug};
 
 struct Base{
     value: usize
@@ -52,6 +52,13 @@ impl Base{
         self
     }
 
+}
+
+
+impl Debug for Base{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Base").field("value", &self.value).finish()
+    }
 }
 
 struct A{
@@ -111,6 +118,12 @@ impl<'a> A{
         self.base.read()
     }
 
+}
+
+impl Debug for A{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("A").field("base", &self.base).finish()
+    }
 }
 
 impl Clone for A{

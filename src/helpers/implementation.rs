@@ -1,8 +1,9 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
+use regex::Regex;
 use syn::{
     parse_str, punctuated::Punctuated, token::Comma, FnArg, ImplItem, ImplItemFn, ItemImpl, Pat,
-    Receiver, ReturnType, Signature, Type, Visibility,
+    Receiver, ReturnType, Signature, Type, Visibility, Attribute,
 };
 
 use super::{ATTRIBUTE_WRAPPER_NAME, module::get_type_name, VISIBLE_METHOD};
@@ -36,10 +37,28 @@ fn is_pre_wrapper(impl_item: &ImplItem, original_struct_name: &str) -> bool {
             .iter()
             .any(|arg| is_self_type_arg(arg, original_struct_name))
             || method.attrs.iter().any(|atts| {
-                atts.to_token_stream()
-                    .to_string()
-                    .contains(ATTRIBUTE_WRAPPER_NAME)
+                contains(&atts.to_token_stream()
+                .to_string(),ATTRIBUTE_WRAPPER_NAME)
             });
+    }
+    false
+}
+
+pub fn contains(input_string : &str, target : &str) -> bool{
+    // Enquanto houver ocorrências da substring na string de entrada
+    if let Some(idx) = input_string.find(target) {
+        // Verificar se a substring está cercada por caracteres não alfanuméricos
+        let is_isolated = {
+            let before = input_string[..idx].chars().last();
+            let after = input_string[idx + target.len()..].chars().next();
+            before.map_or(true, |c| !c.is_ascii_alphanumeric())
+                && after.map_or(true, |c| !c.is_ascii_alphanumeric())
+        };
+
+        // Se a substring estiver isolada, retornar true
+        if is_isolated {
+            return true;
+        }
     }
     false
 }
@@ -145,7 +164,7 @@ fn check_if_ideal_method(method: &ImplItemFn) -> bool{
     reply
 }
 
-fn rebuild_implementations(
+pub fn rebuild_implementations(
     base_impl_items: &mut Vec<ImplItem>,
     wrapper_impl_items: &mut Vec<ImplItem>,
     item_impl: ItemImpl,
