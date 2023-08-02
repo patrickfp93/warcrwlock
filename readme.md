@@ -175,8 +175,8 @@ After using the `#[warcrwlock]` attribute, the `MyStruct` will be automatically 
 ### Wrapper Methods
 This type of method happens for two reasons: when the method has parameters of type ``Self`` or when the ``wrapper_attribute`` attribute is added.
 
-### Method read and write
-Similar to the methods in `RwLock<T>`, these functions are used to lock the usage and gain access to read or write functions, as shown in the example below:
+### Result
+The result is a wrapper that is laborious to implement with replicated functions of the original type so that it can safely access data without access concurrency.
 ```rust
 fn main() {
     use my_module::MyStruct;
