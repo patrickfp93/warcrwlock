@@ -7,8 +7,8 @@ use syn::{
 use quote::{quote, ToTokens};
 
 use super::{
-    implementation::{contains, rebuild_implementations},
-    ATTRIBUTE_NAME, DERIVE_MACRO,
+    implementation::rebuild_implementations,
+    ATTRIBUTE_NAME, DERIVE_MACRO, contains_isolated_name,
 };
 
 pub fn extend_struct(item_struct: ItemStruct) -> TokenStream {
@@ -19,12 +19,12 @@ pub fn extend_struct(item_struct: ItemStruct) -> TokenStream {
     let mut all_attributes = input.attrs.clone();
     all_attributes = all_attributes
         .into_iter()
-        .filter(|att| !contains(&att.to_token_stream().to_string(), ATTRIBUTE_NAME))
+        .filter(|att| !contains_isolated_name(&att.to_token_stream().to_string(), ATTRIBUTE_NAME))
         .collect::<Vec<Attribute>>();
     let mut derive_atributes = vec![];
     let mut attributes = vec![];
     for att in all_attributes{
-        if contains(&att.to_token_stream().to_string(), DERIVE_MACRO){
+        if contains_isolated_name(&att.to_token_stream().to_string(), DERIVE_MACRO){
             derive_atributes.push(att);
         }else{
             attributes.push(att);

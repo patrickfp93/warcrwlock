@@ -1,9 +1,6 @@
-use std::sync::{Arc, RwLock};
-
 use helpers::{module::extend_mod, struture::extend_struct};
 use proc_macro::TokenStream;
-use quote::ToTokens;
-use syn::{parse_macro_input, Item, DeriveInput};
+use syn::{parse_macro_input, Item};
 
 mod helpers;
 

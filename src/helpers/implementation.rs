@@ -1,33 +1,10 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use regex::Regex;
 use syn::{
     parse_str, punctuated::Punctuated, token::Comma, FnArg, ImplItem, ImplItemFn, ItemImpl, Pat,
-    Receiver, ReturnType, Signature, Type, Visibility, Attribute,
-};
+    Receiver, ReturnType, Signature, Type, Visibility};
 
-use super::{ATTRIBUTE_WRAPPER_NAME, module::get_type_name, VISIBLE_METHOD};
-
-
-fn is_self_type_arg(arg: &FnArg, original_struct_name: &str) -> bool {
-    let mut possible_name_type = None;
-    match arg {
-        FnArg::Typed(pat_type) => {
-            if let Type::Path(type_path) = &*pat_type.ty {
-                if let Some(segment) = type_path.path.segments.last() {
-                    possible_name_type = Some(segment.ident.to_string());
-                }
-            }
-        }
-        _ => {}
-    };
-    if let Some(name_type) = possible_name_type {
-        if &name_type == original_struct_name || &name_type == "Self" {
-            return true;
-        }
-    }
-    return false;
-}
+use super::{ATTRIBUTE_WRAPPER_NAME,VISIBLE_METHOD, contains_isolated_name};
 
 fn is_pre_wrapper(impl_item: &ImplItem, original_struct_name: &str) -> bool {
     if let ImplItem::Fn(method) = impl_item {
@@ -35,38 +12,20 @@ fn is_pre_wrapper(impl_item: &ImplItem, original_struct_name: &str) -> bool {
             .sig
             .inputs
             .iter()
-            .any(|arg| is_self_type_arg(arg, original_struct_name))
+            .any(|arg| contains_isolated_name(&arg.to_token_stream().to_string(), original_struct_name))
             || method.attrs.iter().any(|atts| {
-                contains(&atts.to_token_stream()
+                contains_isolated_name(&atts.to_token_stream()
                 .to_string(),ATTRIBUTE_WRAPPER_NAME)
             });
     }
     false
 }
 
-pub fn contains(input_string : &str, target : &str) -> bool{
-    // Enquanto houver ocorrências da substring na string de entrada
-    if let Some(idx) = input_string.find(target) {
-        // Verificar se a substring está cercada por caracteres não alfanuméricos
-        let is_isolated = {
-            let before = input_string[..idx].chars().last();
-            let after = input_string[idx + target.len()..].chars().next();
-            before.map_or(true, |c| !c.is_ascii_alphanumeric())
-                && after.map_or(true, |c| !c.is_ascii_alphanumeric())
-        };
-
-        // Se a substring estiver isolada, retornar true
-        if is_isolated {
-            return true;
-        }
-    }
-    false
-}
 
 fn is_builder(method: &ImplItemFn, original_struct_name: &str) -> bool {
     if let ReturnType::Type(_, type_) = method.sig.output.clone() {
-        let type_name = get_type_name(type_);
-        return type_name == "Self" || type_name == original_struct_name;
+        return contains_isolated_name(&type_.to_token_stream().to_string(),original_struct_name)
+        || contains_isolated_name(&type_.to_token_stream().to_string(),"Self");
     }
     false
 }
@@ -88,7 +47,7 @@ fn normalize_self_types(method: &mut ImplItemFn, original_struct_name: &str) {
         ));
     }
     if let ReturnType::Type(_, type_) = method.sig.output.clone() {
-        if get_type_name(type_) == original_struct_name {
+        if contains_isolated_name(&type_.to_token_stream().to_string(), original_struct_name) {
             method.sig.output = parse_str(" -> Self").unwrap();
         }
     }
@@ -228,9 +187,10 @@ pub fn rebuild_implementations(
     }
 }
 
+
 pub fn extend_impl(item_impl: ItemImpl) -> TokenStream {
     let wrapper_self_ty = item_impl.self_ty.clone();
-    let wrapper_self_ty_str = get_type_name(wrapper_self_ty.clone());
+    let wrapper_self_ty_str = wrapper_self_ty.clone().into_token_stream().to_string();
     let base_self_ty_str = wrapper_self_ty_str.clone() + "Base";
     let base_self_ty: Box<Type> = parse_str(&base_self_ty_str).unwrap();
 

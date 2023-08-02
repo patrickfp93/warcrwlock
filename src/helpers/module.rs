@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use syn::{Attribute, Item, Type, ItemMod, parse_str};
+use syn::{Attribute, Item, ItemMod, parse_str};
 
 use super::{ATTRIBUTE_NAME, struture::extend_struct, implementation};
 
@@ -33,9 +33,6 @@ fn get_name_attribute(attribute: &Attribute) -> Option<String> {
     None
 }
 
-pub fn get_type_name(type_ : Box<Type>) -> String{
-    type_.into_token_stream().to_string()
-}
 
 
 pub fn extend_mod(item_mod: ItemMod) -> TokenStream {

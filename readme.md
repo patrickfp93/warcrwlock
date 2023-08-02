@@ -13,7 +13,7 @@ To use the WarcRwLock crate, add the following dependency to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-warcrwlock = "1.5.1"
+warcrwlock = "1.4.2"
 ```
 
 ## Example Usage
@@ -211,7 +211,8 @@ mod my_module {
 > * `Update(1.2.1)`: Methods with conditional visibility or visibility other than public and private (like pub(crate)) are treated the same as public methods.
 > * `Update(1.3.0)`: A new attribute, called ``visible_to_wrapper`` is added to private methods so that they are accessible to wrapper methods.
 > * `Update(1.4.0)`: The wrapper now implements PartialEq.
-> * `Update(1.4.1)`: Fixed compatibility with `derive` macros and other macros. Fixed attribute recognition failure.
+> * `Update(1.4.1)`: Fixed compatibility with `derive` macros and other macros.
+> * `Update(1.4.2)`: Fixed attribute and type recognition failure in the syntax tree..
 
 ## Contribution
 
