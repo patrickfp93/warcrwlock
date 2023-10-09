@@ -179,7 +179,7 @@ checksum = "22049a19f4a68748a168c0fc439f9516686aa045927ff767eca0a85101fb6e73"
 
 [[package]]
 name = "warcrwlock"
-version = "2.0.0"
+version = "1.5.0"
 dependencies = [
  "proc-macro2",
  "quote",
