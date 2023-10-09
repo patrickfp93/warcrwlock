@@ -1,6 +1,6 @@
 [package]
 name = "warcrwlock"
-version = "1.4.2"
+version = "1.5.0"
 edition = "2021"
 authors = ["PFP <patrickfp93@gmail.com>"]
 description = "A crate in Rust that provides an attribute macro for mods, structs and impls. Rewrite code using under the hood asynchronous reference (Arc) and asynchronous writing and read(RWlock) control elements."
@@ -17,7 +17,9 @@ proc-macro = true
 proc-macro2 = "1.0.63"
 quote = "1.0.29"
 syn = { version = "2.0.26", features = ["full"] }
-synstructure = "0.13.0"
+#project_scope = { path = "./../project_scope"}
+#walkdir = "2.4.0"
+static_init = "1.0.3"
 
 [package.metadata.doc]
 index = "./readme.md"

@@ -1,27 +1,30 @@
-use helpers::{module::extend_mod, struture::extend_struct};
+use helpers::{implementation, struture};
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, Item};
+use syn::{Item, Type, parse_macro_input};
 
+#[cfg(test)]
+mod tests; 
 mod helpers;
 
 #[proc_macro_attribute]
-pub fn warcrwlock(_: TokenStream, input: TokenStream) -> proc_macro::TokenStream {
-    //obtem do o módulo
-    let item: Item = parse_macro_input!(input as Item);
+pub fn warcrwlock(possible_prelude: TokenStream, input: TokenStream) -> TokenStream {
+    //init_project_context();
+    let item: Item = parse_macro_input!(input);
     match item {
-        Item::Impl(item_impl) => helpers::implementation::extend_impl(item_impl).into(),
-        Item::Mod(sub_mod) => extend_mod(sub_mod).into(),
-        Item::Struct(item_struct) => extend_struct(item_struct).into(),
-        _ => panic!("This macro can only be used in structs, impl Blocks and mods!"),
-    }
+        Item::Impl(item_impl) => {
+            let item_impl_clone = item_impl.clone();
+            let self_ty = item_impl_clone.self_ty.as_ref();
+            let original_type_name = if let Type::Path(type_path) = self_ty{                
+                type_path.path.get_ident().unwrap()
+            }else{
+                panic!("The implementation type is irregular!")
+            };
+            implementation::expantion(item_impl, &original_type_name.to_string(),possible_prelude.into()).into()
+        },
+        Item::Struct(item_struct) => {
+            struture::expantion(item_struct,possible_prelude.into()).into()
+        },
+        _ => panic!("This attribute can only be used in structs and implementations."),
+    }        
 }
 
-#[proc_macro_attribute]
-pub fn wrapper_method(_: TokenStream, input: TokenStream) -> proc_macro::TokenStream {
-    input.into()
-}
-
-#[proc_macro_attribute]
-pub fn visible_to_wrapper(_: TokenStream, input: TokenStream) -> proc_macro::TokenStream {
-    input.into()
-}
