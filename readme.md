@@ -27,7 +27,7 @@ mod core{
 ```
 Using the same identifier, another struct is created that will contain a single field, as shown in the example below:
 ~~~rust
-pub(super) struct MyStruct {
+struct MyStruct {
     core : Arc<RwLock<core::MyStruct>>,
 }
 //impls...
@@ -48,9 +48,9 @@ To facilitate implementation, it is necessary to use accessors. Accessors are me
 ~~~rust
     impl MyStruct {
         pub fn value(&self) -> MyStructRefLock<usize>{...}
-        pub fn value(&mut self) -> MyStructMutLock<usize>{...}
+        pub fn value_mut(&mut self) -> MyStructMutLock<usize>{...}
         fn value_2(&self) -> MyStructRefLock<usize>{...}
-        fn value_2(&mut self) -> MyStructMutLock<usize>{...}
+        fn value_2_mut(&mut self) -> MyStructMutLock<usize>{...}
     }
 ~~~
 
