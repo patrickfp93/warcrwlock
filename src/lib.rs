@@ -1,7 +1,6 @@
 use helpers::{implementation, struture};
 use proc_macro::TokenStream;
-use proc_macro2::Ident;
-use syn::{parse_macro_input, parse_str, Item, Type};
+use syn::{parse_macro_input, Item, Type};
 
 mod helpers;
 #[cfg(test)]

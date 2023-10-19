@@ -1,9 +1,9 @@
 use std::io::Read;
 
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::ToTokens;
 use static_init::dynamic;
-use syn::{ItemStruct, parse_file, Item, Generics, GenericParam, parse_str};
+use syn::{ItemStruct, parse_file, Item, Generics, GenericParam};
 
 pub mod implementation;
 pub mod struture;
