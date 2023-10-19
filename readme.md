@@ -8,7 +8,7 @@ To use the WarcRwLock crate, add the following dependency to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-warcrwlock = "1.5.0"
+warcrwlock = "1.5.2"
 ```
 ## Description
 Warcrwlock is an ``abstraction`` that turns a simple data structure into an atomic self-reference, enabling simultaneous read and write control using ``Arc`` and ``RwLock``. The potential for software designed or partially implemented in Rust is significant in terms of security and performance, comparable to ``C++``. Therefore, the primary motivation is to increase productivity in these applications by abstracting the ability to share data ``asynchronously`` with ``safety``.
@@ -84,6 +84,7 @@ A user's implementation, writing and reading the structure's fields, is done thr
 > * `1.4.1`: Fixed compatibility with `derive` macros and other macros.
 > * `1.4.2`: Fixed attribute and type recognition failure in the syntax tree..
 > * `1.5.0`: Restructuring and bug fixes with removal of unnecessary attributes added from version `1.2.0`.
+> * `1.5.2`: Generic support fixed.
 
 ## Contribution
 
