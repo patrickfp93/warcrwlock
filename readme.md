@@ -43,7 +43,7 @@ To facilitate implementation, it is necessary to use accessors. Accessors are me
         pub value: usize,
         #[public_read_only]
         pub value_2 : usize
-        pub value_3 : usize
+        value_3 : usize
     }
 ~~~
 >Result...
@@ -54,8 +54,8 @@ To facilitate implementation, it is necessary to use accessors. Accessors are me
         pub fn value_mut(&mut self) -> MyStructMutLock<usize>{...}
         pub fn value_2(&self) -> MyStructRefLock<usize>{...}
         fn value_2_mut(&mut self) -> MyStructMutLock<usize>{...}
-        pub fn value_3(&self) -> MyStructRefLock<usize>{...}
-        pub fn value_3_mut(&mut self) -> MyStructMutLock<usize>{...}
+        fn value_3(&self) -> MyStructRefLock<usize>{...}
+        fn value_3_mut(&mut self) -> MyStructMutLock<usize>{...}
     }
 ~~~
 
@@ -90,7 +90,7 @@ A user's implementation, writing and reading the structure's fields, is done thr
 > * `1.4.2`: Fixed attribute and type recognition failure in the syntax tree..
 > * `1.5.0`: Restructuring and bug fixes with removal of unnecessary attributes added from version `1.2.0`.
 > * `1.5.2`: Generic support fixed.
-> * `1.6.0`: Added "only_read" attribute.
+> * `1.6.0`: Added "public_read_only" attribute.
 
 ## Contribution
 
