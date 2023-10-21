@@ -1,6 +1,7 @@
 use helpers::{implementation, struture};
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, Item, Type};
+use quote::ToTokens;
+use syn::{parse_macro_input, Item, Type, FieldsNamed};
 
 mod helpers;
 #[cfg(test)]

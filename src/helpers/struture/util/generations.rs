@@ -1,7 +1,7 @@
 use quote::{quote, ToTokens};
 use syn::{
     parse_quote, punctuated::Punctuated, FieldsNamed, FnArg, Generics, Ident, ImplItem, ItemImpl,
-    ItemStruct,
+    ItemStruct, Visibility,
 };
 
 use crate::helpers::{
@@ -175,15 +175,19 @@ pub fn generation_access_fields_for_wrapper(
     let bfn = to_token_stream(crate::helpers::BASE_FIELD_NAME);
     for field in fields_named.named.iter() {
         let vis = field.vis.clone();
+        let mut mut_vis = field.vis.clone();
         let ident = field.ident.clone().unwrap();
         let mut_ident_method = to_token_stream(format!("{ident}_mut"));
         let ref_ident_method = to_token_stream(format!("{ident}"));
+        if field.attrs.iter().find(|attr| attr.path().is_ident(crate::helpers::ONLY_READ)).is_some(){
+            mut_vis = Visibility::Inherited;
+        }
         let ty = field.ty.clone();
         let mut guard_generics = filted_generics.clone();
         guard_generics.params.insert(0, parse_quote!(#ty));
         if !is_reader {
             let impl_item_mut: ImplItem = parse_quote! {
-                #vis fn #mut_ident_method(&mut self) -> #mut_guard_name #guard_generics{
+                #mut_vis fn #mut_ident_method(&mut self) -> #mut_guard_name #guard_generics{
                     let mut guard = self.#bfn.write().unwrap();
                     let value = &mut guard. #ident;
                     let value = (value as *const #ty) as *mut #ty;

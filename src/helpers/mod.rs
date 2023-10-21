@@ -12,6 +12,7 @@ pub(crate) const ATTRIBUTE_NAME: &str = "warcrwlock";
 pub(crate) const BASE_STRUTURE_NAME: &str = "Core";
 pub(crate) const BASE_FIELD_NAME: &str = "_core";
 pub(crate) const DEFAULT_REFERENCE_STRUTURE_NAME : &str = "Reader";
+pub(crate) const ONLY_READ : &str = "public_read_only";
 
 pub fn contains_isolated_name<C: ToString + ?Sized,T : ToString + ?Sized>(content: &C, target: &T) -> bool {
     get_isolated_name_index(content, target).is_some()

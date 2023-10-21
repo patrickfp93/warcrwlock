@@ -12,12 +12,13 @@ pub fn expantion(item_struct: ItemStruct, possible_reader_ident : Option<Ident>)
     let possible_reader_struture = if let Some(reader_ident) = possible_reader_ident {
         Some(util::reader_normalization::wrapper_normalization(item_struct.clone(),Some(reader_ident)))
     }else{None};
+    //let import_other_atributte = to_token_stream(&format!("warcrwlock::{}",crate::helpers::ONLY_READ));
     let imports = quote! {
         use std::{
             fmt::Debug,
             ops::{Deref, DerefMut},
             sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard},
-        };        
+        };              
     };
 
     let vis = item_struct.vis.clone();
@@ -51,7 +52,7 @@ pub fn expantion(item_struct: ItemStruct, possible_reader_ident : Option<Ident>)
         let reply = quote! {
             #vis type  #core_ident #generics = _core:: #original_ident #filted_generics;
                 #imports
-                mod _core{                    
+                mod _core{                 
                     #use_acessor             
                     #core_struture
                 }

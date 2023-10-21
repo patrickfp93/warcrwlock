@@ -3,7 +3,8 @@ use std::ops::Range;
 use warcrwlock::warcrwlock;
 
 #[warcrwlock]
-pub struct Number{
+pub struct Number{    
+    #[public_read_only]
     pub number : usize
 }
 

@@ -8,7 +8,7 @@ To use the WarcRwLock crate, add the following dependency to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-warcrwlock = "1.5.2"
+warcrwlock = "1.6.0"
 ```
 ## Description
 Warcrwlock is an ``abstraction`` that turns a simple data structure into an atomic self-reference, enabling simultaneous read and write control using ``Arc`` and ``RwLock``. The potential for software designed or partially implemented in Rust is significant in terms of security and performance, comparable to ``C++``. Therefore, the primary motivation is to increase productivity in these applications by abstracting the ability to share data ``asynchronously`` with ``safety``.
@@ -35,12 +35,15 @@ struct MyStruct {
 
 #### Accessors
 To facilitate implementation, it is necessary to use accessors. Accessors are methods that are automatically generated for each field of the original structure. Using the `MyStruct` from the previous examples and adding a field, we would have 4 generated methods.
+> `public_read_only` is an attribute that must be used on a field to make the mutable access method private.
 >An important detail is that accessors are generated with the same visibility type as the field, as shown in the example below:
 ~~~rust
     #[warcrwlock]
     pub struct MyStruct {
         pub value: usize,
-        value_2 : usize
+        #[public_read_only]
+        pub value_2 : usize
+        pub value_3 : usize
     }
 ~~~
 >Result...
@@ -49,8 +52,10 @@ To facilitate implementation, it is necessary to use accessors. Accessors are me
     impl MyStruct {
         pub fn value(&self) -> MyStructRefLock<usize>{...}
         pub fn value_mut(&mut self) -> MyStructMutLock<usize>{...}
-        fn value_2(&self) -> MyStructRefLock<usize>{...}
+        pub fn value_2(&self) -> MyStructRefLock<usize>{...}
         fn value_2_mut(&mut self) -> MyStructMutLock<usize>{...}
+        pub fn value_3(&self) -> MyStructRefLock<usize>{...}
+        pub fn value_3_mut(&mut self) -> MyStructMutLock<usize>{...}
     }
 ~~~
 
@@ -85,6 +90,7 @@ A user's implementation, writing and reading the structure's fields, is done thr
 > * `1.4.2`: Fixed attribute and type recognition failure in the syntax tree..
 > * `1.5.0`: Restructuring and bug fixes with removal of unnecessary attributes added from version `1.2.0`.
 > * `1.5.2`: Generic support fixed.
+> * `1.6.0`: Added "only_read" attribute.
 
 ## Contribution
 

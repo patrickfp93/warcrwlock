@@ -8,6 +8,7 @@ pub fn core_normalization(base: ItemStruct) -> ItemStruct {
     base.vis = parse_quote!(pub);
     if let Fields::Named(field_named) = &mut base.fields{
         field_named.named.iter_mut().for_each(|field|{
+            field.attrs.clear();
             field.vis = parse_quote!(pub(super));
         });   
     }
