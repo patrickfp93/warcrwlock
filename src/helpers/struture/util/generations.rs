@@ -1,7 +1,7 @@
 use quote::{quote, ToTokens};
 use syn::{
     parse_quote, punctuated::Punctuated, FieldsNamed, FnArg, Generics, Ident, ImplItem, ItemImpl,
-    ItemStruct, Visibility,
+    ItemStruct, Visibility, parse_str, GenericParam, TypeParam,
 };
 
 use crate::helpers::{
@@ -172,7 +172,8 @@ pub fn generation_access_fields_for_wrapper(
     let bsn = to_token_stream(full_base_struct_name(original_ident_struct.clone()));
     let mut params = Punctuated::<FnArg, syn::Token![,]>::new();
     let mut instance_fields = Punctuated::<syn::FieldValue, syn::Token![,]>::new();
-    let bfn = to_token_stream(crate::helpers::BASE_FIELD_NAME);
+    let bfn = to_token_stream(crate::helpers::BASE_FIELD_NAME);    
+    
     for field in fields_named.named.iter() {
         let vis = field.vis.clone();
         let mut mut_vis = field.vis.clone();
@@ -182,30 +183,47 @@ pub fn generation_access_fields_for_wrapper(
         if field.attrs.iter().find(|attr| attr.path().is_ident(crate::helpers::ONLY_READ)).is_some(){
             mut_vis = Visibility::Inherited;
         }
-        let ty = field.ty.clone();
+        let return_type = field.ty.clone();
         let mut guard_generics = filted_generics.clone();
-        guard_generics.params.insert(0, parse_quote!(#ty));
+        let mut guard_generics_ts = filted_generics.to_token_stream();
+        match parse_str::<GenericParam>(&return_type.to_token_stream().to_string()) {
+            Ok(value) => {
+                guard_generics.params.push(value);
+                guard_generics_ts = guard_generics.to_token_stream();
+            },
+            Err(_) => {
+                if guard_generics.params.len() > 0{
+                    let mut guard_generics_str = guard_generics.to_token_stream().to_string();
+                    guard_generics_str.remove(guard_generics.params.len()-1);
+                    guard_generics_str = format!("{guard_generics_str},{}>",return_type.to_token_stream().to_string());
+                    guard_generics_ts = to_token_stream(&guard_generics_str);
+                }else{
+                    let guard_generics_str =format!("<{}>",return_type.to_token_stream().to_string());
+                    guard_generics_ts = to_token_stream(&guard_generics_str);
+                }
+            },
+        } 
         if !is_reader {
             let impl_item_mut: ImplItem = parse_quote! {
-                #mut_vis fn #mut_ident_method(&mut self) -> #mut_guard_name #guard_generics{
+                #mut_vis fn #mut_ident_method(&mut self) -> #mut_guard_name #guard_generics_ts{
                     let mut guard = self.#bfn.write().unwrap();
                     let value = &mut guard. #ident;
-                    let value = (value as *const #ty) as *mut #ty;
+                    let value = (value as *const #return_type) as *mut #return_type;
                     return #mut_guard_name::new(value, guard);
                 }
             };
             impl_items.push(impl_item_mut);
         }
         let impl_item_ref: ImplItem = parse_quote! {
-            #vis fn #ref_ident_method(&self) -> #ref_guard_name #guard_generics{
+            #vis fn #ref_ident_method(&self) -> #ref_guard_name #guard_generics_ts{
                 let guard = self.#bfn.read().unwrap();
                 let value = &guard. #ident;
-                let value = value as *const #ty;
+                let value = value as *const #return_type;
                 return #ref_guard_name::new(value, guard);
             }
         };
         impl_items.push(impl_item_ref);
-        params.push(parse_quote!(#ident: #ty));
+        params.push(parse_quote!(#ident: #return_type));
         instance_fields.push(parse_quote!(#ident));
     }
     //make builder

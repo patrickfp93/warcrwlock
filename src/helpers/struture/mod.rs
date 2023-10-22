@@ -20,10 +20,10 @@ pub fn expantion(item_struct: ItemStruct, possible_reader_ident : Option<Ident>)
             sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard},
         };              
     };
-
+    
     let vis = item_struct.vis.clone();
     let helpers =
-        util::generations::generation_help_strutures_and_impls(&wrapper_struture);
+    util::generations::generation_help_strutures_and_impls(&wrapper_struture);
     //panic!("helpes : \n{}",helpers.to_string());
     let fields = item_struct.fields.clone();
     let original_ident = item_struct.ident.clone();    

@@ -91,6 +91,7 @@ A user's implementation, writing and reading the structure's fields, is done thr
 > * `1.5.0`: Restructuring and bug fixes with removal of unnecessary attributes added from version `1.2.0`.
 > * `1.5.2`: Generic support fixed.
 > * `1.6.0`: Added "public_read_only" attribute.
+> * `1.6.1`: Fixed access guard return type.
 
 ## Contribution
 
