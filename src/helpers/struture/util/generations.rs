@@ -1,8 +1,7 @@
 use quote::{quote, ToTokens};
 use syn::{
     parse_quote, punctuated::Punctuated, FieldsNamed, FnArg, Generics, Ident, ImplItem, ItemImpl,
-    ItemStruct, Visibility, parse_str, GenericParam, TypeParam,
-};
+    ItemStruct, Visibility, parse_str, GenericParam};
 
 use crate::helpers::{
     full_base_struct_name, get_mut_guard_name, get_ref_guard_name, to_token_stream, filter_generics,
@@ -164,6 +163,7 @@ pub fn generation_access_fields_for_wrapper(
     generics: Generics,
     is_reader: bool,
 ) -> ItemImpl {
+    //let mut id_field = 0;
     let filted_generics = filter_generics(&generics);
     let mut impl_items = vec![];
     let mut_guard_name = to_token_stream(get_mut_guard_name(&original_ident_struct.to_string()));
@@ -173,7 +173,6 @@ pub fn generation_access_fields_for_wrapper(
     let mut params = Punctuated::<FnArg, syn::Token![,]>::new();
     let mut instance_fields = Punctuated::<syn::FieldValue, syn::Token![,]>::new();
     let bfn = to_token_stream(crate::helpers::BASE_FIELD_NAME);    
-    
     for field in fields_named.named.iter() {
         let vis = field.vis.clone();
         let mut mut_vis = field.vis.clone();
@@ -185,7 +184,8 @@ pub fn generation_access_fields_for_wrapper(
         }
         let return_type = field.ty.clone();
         let mut guard_generics = filted_generics.clone();
-        let mut guard_generics_ts = filted_generics.to_token_stream();
+        #[allow(unused_assignments)]
+        let mut guard_generics_ts = filted_generics.to_token_stream();        
         match parse_str::<GenericParam>(&return_type.to_token_stream().to_string()) {
             Ok(value) => {
                 guard_generics.params.push(value);
@@ -194,8 +194,8 @@ pub fn generation_access_fields_for_wrapper(
             Err(_) => {
                 if guard_generics.params.len() > 0{
                     let mut guard_generics_str = guard_generics.to_token_stream().to_string();
-                    guard_generics_str.remove(guard_generics.params.len()-1);
-                    guard_generics_str = format!("{guard_generics_str},{}>",return_type.to_token_stream().to_string());
+                    guard_generics_str = (&guard_generics_str[1..guard_generics_str.len()-1]).to_string();
+                    guard_generics_str = format!("<{},{guard_generics_str}>",return_type.to_token_stream().to_string());
                     guard_generics_ts = to_token_stream(&guard_generics_str);
                 }else{
                     let guard_generics_str =format!("<{}>",return_type.to_token_stream().to_string());
@@ -204,14 +204,16 @@ pub fn generation_access_fields_for_wrapper(
             },
         } 
         if !is_reader {
-            let impl_item_mut: ImplItem = parse_quote! {
-                #mut_vis fn #mut_ident_method(&mut self) -> #mut_guard_name #guard_generics_ts{
+            let impl_item_mut = quote::quote! {
+                #mut_vis fn #mut_ident_method(&mut self) -> #mut_guard_name  #guard_generics_ts{
                     let mut guard = self.#bfn.write().unwrap();
                     let value = &mut guard. #ident;
                     let value = (value as *const #return_type) as *mut #return_type;
                     return #mut_guard_name::new(value, guard);
                 }
             };
+            //if id_field == 0{panic!("Olha:\n {}",impl_item_mut.to_string());}
+            let impl_item_mut: ImplItem = parse_quote!(#impl_item_mut);
             impl_items.push(impl_item_mut);
         }
         let impl_item_ref: ImplItem = parse_quote! {
@@ -225,6 +227,7 @@ pub fn generation_access_fields_for_wrapper(
         impl_items.push(impl_item_ref);
         params.push(parse_quote!(#ident: #return_type));
         instance_fields.push(parse_quote!(#ident));
+        //id_field+=1;
     }
     //make builder
     let builder_generics = if generics.params.len() > 0{

@@ -92,6 +92,7 @@ A user's implementation, writing and reading the structure's fields, is done thr
 > * `1.5.2`: Generic support fixed.
 > * `1.6.0`: Added "public_read_only" attribute.
 > * `1.6.1`: Fixed access guard return type.
+> * `1.6.2`: Fixed guards' access methods.
 
 ## Contribution
 
