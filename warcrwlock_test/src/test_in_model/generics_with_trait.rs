@@ -5,5 +5,6 @@ pub trait A{}
 #[warcrwlock]
 pub struct S<T : A>{
     a : T,
-    b : Vec<f64>
+    b : Vec<f64>,
+    c : f64,
 }

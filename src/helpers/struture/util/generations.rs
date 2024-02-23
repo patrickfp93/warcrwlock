@@ -188,8 +188,9 @@ pub fn generation_access_fields_for_wrapper(
         let mut guard_generics_ts = filted_generics.to_token_stream();        
         match parse_str::<GenericParam>(&return_type.to_token_stream().to_string()) {
             Ok(value) => {
-                guard_generics.params.push(value);
+                guard_generics.params.insert(0,value);
                 guard_generics_ts = guard_generics.to_token_stream();
+                //panic!("Olha:\n {}",guard_generics_ts.to_string());
             },
             Err(_) => {
                 if guard_generics.params.len() > 0{
@@ -212,7 +213,6 @@ pub fn generation_access_fields_for_wrapper(
                     return #mut_guard_name::new(value, guard);
                 }
             };
-            //if id_field == 0{panic!("Olha:\n {}",impl_item_mut.to_string());}
             let impl_item_mut: ImplItem = parse_quote!(#impl_item_mut);
             impl_items.push(impl_item_mut);
         }
