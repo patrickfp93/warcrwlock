@@ -174,7 +174,7 @@ fn use_test() {
 > * `2.0.0`: Replaces the cloning implementation for abstract forms of traits with mutable methods with an unsafe cloning of its own implementation for security reasons.
 > * `2.0.1`: Fixed unsafe cloning.
 > * `3.0.0`: Improved cloning security by allowing type ownership to be passed. Downgrading/removing the ability to handle implementation blocks for more code safety.
-> * '3.0.1': Replaced static_init! with lazy_static and Mutex for global identifier, improving compatibility and safety.
+> * `3.0.1`: Replaced static_init! with lazy_static and Mutex for global identifier, improving compatibility and safety.
 
 ## Contribution
 
