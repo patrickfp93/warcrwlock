@@ -2,7 +2,6 @@ use std::io::Read;
 
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use static_init::dynamic;
 use syn::{ItemStruct, parse_file, Item, Generics, GenericParam};
 
 pub mod implementation;
@@ -60,10 +59,11 @@ fn full_base_struct_name<T :ToString>(original_struct_name : T) -> String{
     format!("{}{BASE_STRUTURE_NAME}",original_struct_name.to_string())
 }
 
-#[dynamic] 
-static mut IMPL_ID: usize = 0;
+lazy_static::lazy_static! {
+    static ref IMPL_ID: std::sync::Mutex<usize>  = std::sync::Mutex::<usize>::new(0);
+}
 pub fn get_mod_ident()-> TokenStream{
-    let mut impl_id = IMPL_ID.write();
+    let mut impl_id = IMPL_ID.lock().unwrap();
     let current_id = *impl_id;
     *impl_id += 1;
     to_token_stream(format!("_into_{current_id}"))
