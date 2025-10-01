@@ -8,7 +8,7 @@ To use the WarcRwLock crate, add the following dependency to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-warcrwlock = "1.6.4"
+warcrwlock = "3.0.1"
 ```
 ## Description
 Warcrwlock is an ``abstraction`` that turns a simple data structure into an atomic self-reference, enabling simultaneous read and write control using ``Arc`` and ``RwLock``. The potential for software designed or partially implemented in Rust is significant in terms of security and performance, comparable to ``C++``. Therefore, the primary motivation is to increase productivity in these applications by abstracting the ability to share data ``asynchronously`` with ``safety``.
@@ -42,7 +42,7 @@ To facilitate implementation, it is necessary to use accessors. Accessors are me
     pub struct MyStruct {
         pub value: usize,
         #[public_read_only]
-        pub value_2 : usize
+        pub value_2 : usize,
         value_3 : usize
     }
 ~~~
@@ -72,13 +72,88 @@ To facilitate the construction of the wrapper, a private `builder` method is gen
 >* Field values are accessible only through methods.
 >* The structure cannot have associated `lifetime`.
 
-### Warcrwock Implementation Attribute
-A user's implementation, writing and reading the structure's fields, is done through accessors and the constructor. The problem is that this can become tedious and less adaptable in some situations. For this reason, if the ``warcrwlock`` attribute is also placed in the implementations, it will be possible to program in the original context without the need to use ``accessors`` and ``constructors``.
+## Warcrwock Trait Attribute
+To use the #[warcrwlock] macro on your traits, simply add the attribute before the trait declaration. Here is an example:
 
+### Example of a Trait without Mutable Methods:
+~~~rust
+#[warcrwlock]
+pub trait MyTrait {
+    fn method_with_ret(&self) -> i32;
+}
+~~~
+#### Uses
+~~~rust
+struct MyStructA(i32);
+
+impl MyTrait for MyStructA {
+    fn method_with_ret(&self) -> i32 {
+        self.0
+    }
+}
+
+struct MyStructB(i32);
+
+impl MyTrait for MyStructB {
+    fn method_with_ret(&self) -> i32 {
+        self.0
+    }
+}
+
+fn use_test() {
+    fn sum(a: MyTraitAbstract, b: MyTraitAbstract) -> i32 {
+        a.method_with_ret() + b.method_with_ret()
+    }
+    let sum = sum(MyStructA(3).into(), MyStructB(7).into());
+    assert_eq!(sum, 10);
+}
+~~~
+
+#### Example of a Trait without Mutable Methods:
+~~~rust
+#[warcrwlock]
+pub trait MyTrait {
+    fn method_with_ret(&self) -> i32;
+    fn method_with_ret_mut(&mut self) -> &mut i32;
+}
+~~~
+~~~rust
+struct MyStructA(i32);
+
+impl MyTrait for MyStructA {
+    fn method_with_ret(&self) -> i32 {
+        self.0
+    }
+    fn method_with_ret_mut(&mut self) -> &mut i32 {
+        &mut self.0
+    }
+}
+struct MyStructB(i32);
+
+impl MyTrait for MyStructB {
+    fn method_with_ret(&self) -> i32 {
+        self.0
+    }
+    fn method_with_ret_mut(&mut self) -> &mut i32 {
+        &mut self.0
+    }
+}
+
+fn use_test() {
+    let a = MyStructA(5);
+    let mut a: MyTraitAbstract = a.into();
+    let b = MyStructB(10);
+    let mut b: MyTraitAbstract = b.into();
+    assert_eq!(a.method_with_ret(), 5);
+    assert_eq!(b.method_with_ret(), 10);
+    *a.method_with_ret_mut() = 50;
+    *b.method_with_ret_mut() = 100;
+    assert_eq!(a.method_with_ret(), 50);
+    assert_eq!(b.method_with_ret(), 100);
+}
+~~~
 >**Limitations**
->* The methods cannot have associated `lifetime`.
->* The methods in the implementation without the ``warcrwlock`` attribute are invisible.
->* It is not allowed to return types that have ``Self`` as a generic, except for ``Vec<Self>``.
+>* Traits must be of type Object Safe.
 
 ## Historic
 > * `1.1.0`: Methods with parameters of the same type as the presented structure can now be freely implemented.
@@ -87,14 +162,19 @@ A user's implementation, writing and reading the structure's fields, is done thr
 > * `1.3.0`: A new attribute, called ``visible_to_wrapper`` is added to private methods so that they are accessible to wrapper methods.
 > * `1.4.0`: The wrapper now implements PartialEq.
 > * `1.4.1`: Fixed compatibility with `derive` macros and other macros.
-> * `1.4.2`: Fixed attribute and type recognition failure in the syntax tree..
+> * `1.4.2`: Fixed attribute and type recognition failure in the syntax tree.
 > * `1.5.0`: Restructuring and bug fixes with removal of unnecessary attributes added from version `1.2.0`.
 > * `1.5.2`: Generic support fixed.
 > * `1.6.0`: Added "public_read_only" attribute.
 > * `1.6.1`: Fixed access guard return type.
 > * `1.6.2`: Fixed guards' access methods.
 > * `1.6.3`: Fixed guard access methods regarding common parameters.
-> * `1.6.4`: Replaced `static_init!` with `lazy_static` and   `Mutex` for global identifier, improving compatibility and safety.
+> * `1.7.1`: Add trait support.
+> * `1.7.2`: Fixed imports in wrapped traits.
+> * `2.0.0`: Replaces the cloning implementation for abstract forms of traits with mutable methods with an unsafe cloning of its own implementation for security reasons.
+> * `2.0.1`: Fixed unsafe cloning.
+> * `3.0.0`: Improved cloning security by allowing type ownership to be passed. Downgrading/removing the ability to handle implementation blocks for more code safety.
+> * '3.0.1': Replaced static_init! with lazy_static and Mutex for global identifier, improving compatibility and safety.
 
 ## Contribution
 

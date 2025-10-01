@@ -1,0 +1,23 @@
+[package]
+name = "warcrwlock"
+version = "3.0.0"
+edition = "2021"
+authors = ["PFP <patrickfp93@gmail.com>"]
+description = "A crate in Rust that provides an attribute macro for structs and traits. Rewrite code using under the hood asynchronous reference (Arc) and asynchronous writing and read(RWlock) control elements."
+license = "MIT"
+repository = "https://github.com/patrickfp93/warcrwlock"
+keywords = ["lazy", "async", "arc","rwlock","attribute" ]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.63"
+quote = "1.0.29"
+syn = { version = "2.0.26", features = ["full"] }
+static_init = "1.0.3"
+
+[package.metadata.doc]
+index = "./readme.md"

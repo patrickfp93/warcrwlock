@@ -1,11 +1,12 @@
-use std::io::Read;
+use std::{io::Read, sync::Mutex};
 
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use syn::{ItemStruct, parse_file, Item, Generics, GenericParam};
+use syn::{parse_file, GenericParam, Generics, Ident, Item, ItemStruct};
 
 pub mod implementation;
 pub mod struture;
+pub mod traits;
 
 pub(crate) const ATTRIBUTE_NAME: &str = "warcrwlock";
 pub(crate) const BASE_STRUTURE_NAME: &str = "Core";
@@ -55,12 +56,30 @@ pub fn to_token_stream<T :ToString>(value :T) -> proc_macro2::TokenStream{
     value.to_string().parse().unwrap()
 }
 
+pub fn camel_to_snake_case(ident: &Ident) -> String {
+    let camel_case = ident.to_string();
+    let mut snake_case = String::new();
+
+    for (i, c) in camel_case.chars().enumerate() {
+        if c.is_uppercase() {
+            if i != 0 {
+                snake_case.push('_');
+            }
+            snake_case.push(c.to_ascii_lowercase());
+        } else {
+            snake_case.push(c);
+        }
+    }
+
+    snake_case
+}
+
 fn full_base_struct_name<T :ToString>(original_struct_name : T) -> String{
     format!("{}{BASE_STRUTURE_NAME}",original_struct_name.to_string())
 }
 
 lazy_static::lazy_static! {
-    static ref IMPL_ID: std::sync::Mutex<usize>  = std::sync::Mutex::<usize>::new(0);
+    static ref IMPL_ID: Mutex<usize> = Mutex::new(0);
 }
 pub fn get_mod_ident()-> TokenStream{
     let mut impl_id = IMPL_ID.lock().unwrap();
